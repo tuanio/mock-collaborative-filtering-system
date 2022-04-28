@@ -72,16 +72,6 @@ def get_recommendation(query_user_code: str, limit: int):
         order = [dict(item) for item in order]
         order = pd.DataFrame(order)
 
-        # query = order[order.user_code == query_user_code].drop('user_code', axis=1)
-        # query = query.sort_values(by='rating', ascending=False)
-        
-        # list_product_code = query['product_code'].values
-        # # trọng số
-        # weights = (query['rating'] / query['rating'].sum()).astype('float').values
-
-        # recommend = np.random.choice(list_product_code,
-        #         size=min(limit, query.shape[0]), replace=False, p=weights).tolist()
-
         list_user_code = order["user_code"].unique()
         list_product_code = order["product_code"].unique()
 
@@ -99,8 +89,11 @@ def get_recommendation(query_user_code: str, limit: int):
         user_idx = np.where(list_user_code == query_user_code)
         
         list_product_recommendation = []
+        # lặp qua tất cả sản phẩm hiện có
         for product_idx, product_code in enumerate(list_product_code):
+            # tìm tất cả user đã rate sản phẩm đó
             user_rated_product = np.where(user_item[:, product_idx] > 0)[0]
+            # tìm các hệ số tương quan giữa user mong muốn và tất cả user đã rate
             sim = similarity_matrix[user_idx, user_rated_product]
             sim = sim[sim < 1] # loại bỏ giá trị có tương quan là 1, vì nó tương quan với chính nó
             rating = user_item[user_rated_product, product_idx] # lấy list rating của những user đã rate

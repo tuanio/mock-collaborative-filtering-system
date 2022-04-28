@@ -5,3 +5,6 @@
 + tạo đơn hàng
 + danh sách sản phẩm gợi ý cho user
 - thuật toán recommender, có thể sử dụng neighborhood-based CF
+
+# Thuật toán recommendation 
+https://machinelearningcoban.com/2017/05/24/collaborativefiltering/
