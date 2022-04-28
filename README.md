@@ -20,7 +20,7 @@ Cần phải có 3 file, để trong thư mục data:
 - `/add-user`, methods: `POST`: api thêm user mới, nhận một key `userId` là id của User.
 - `/add-product`, methods: `POST`: api thêm product mới, nhận một key `productId`, là id của Product.
 - `/add-order`, methods: `POST`: api thêm một order, nhận 3 key: `userId`, `productId`, `rating` là id của User, id của Product và rating của user cho product đấy.
-- `/get-recommendation/<query_user_code>`, methods: `GET`. `query_user_code` là id của user mong muốn lấy danh sách recommend. API sẽ trả về 10 sản phẩm được gợi ý.
+- `/get-recommendation/<query_user_code>/<limit>`, methods: `GET`. `query_user_code` là id của user mong muốn lấy danh sách recommend. Trong đó, `limit` là số lượng sản phẩm muốn lấy. API sẽ trả về `limit` sản phẩm được gợi ý.
 
 # Environment Variables
 - `DB_URI`: link kết nối đến database

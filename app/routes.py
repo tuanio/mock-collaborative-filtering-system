@@ -55,9 +55,9 @@ def add_order():
     return make_response(dict(status="SUCCESS"))
 
 
-@app.route("/get-recommendation/<path:query_user_code>", methods=["GET"])
+@app.route("/get-recommendation/<path:query_user_code>/<int:limit>", methods=["GET"])
 @cross_origin()
-def get_recommendation(query_user_code: str):
+def get_recommendation(query_user_code: str, limit: int):
 
     try:
         order = (
@@ -72,8 +72,14 @@ def get_recommendation(query_user_code: str):
         order = pd.DataFrame(order)
 
         query = order[order.user_code == query_user_code].drop('user_code', axis=1)
-        query = query.sort_values(by='rating', ascending=False).head(10)
-        recommend = query['product_code'].values.tolist()
+        query = query.sort_values(by='rating', ascending=False)
+        
+        list_product_code = query['product_code'].values
+        # trọng số
+        weights = (query['rating'] / query['rating'].sum()).astype('float').values
+
+        recommend = np.random.choice(list_product_code,
+                size=min(limit, query.shape[0]), replace=False, p=weights).tolist()
 
         # list_user_code = order["user_code"].unique()
         # list_product_code = order["product_code"].unique()
