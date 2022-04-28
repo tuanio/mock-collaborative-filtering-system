@@ -8,3 +8,6 @@
 
 # Thuật toán recommendation 
 https://machinelearningcoban.com/2017/05/24/collaborativefiltering/
+
+- Địn nghĩa?
+- Sử dụng thuật toán này như nào?
