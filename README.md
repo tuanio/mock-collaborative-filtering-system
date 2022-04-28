@@ -26,3 +26,7 @@ Cần phải có 3 file, để trong thư mục data:
 - `DATABASE_URL`: link kết nối đến database
 - `FLASK_ENV`
 - `FLASK_APP=app`
+
+# Cách setup
+- Chạy `python import_data.py` khi kết nối xong với database online
+- 
