@@ -56,9 +56,9 @@ def add_order():
     return make_response(dict(status="SUCCESS"))
 
 
-@app.route("/get-recommendation/<path:query_user_code>/<int:limit>", methods=["GET"])
+@app.route("/get-recommendation/<path:query_user_code>", methods=["GET"])
 @cross_origin()
-def get_recommendation(query_user_code: str, limit: int):
+def get_recommendation(query_user_code: str):
 
     try:
         order = (
@@ -86,13 +86,16 @@ def get_recommendation(query_user_code: str, limit: int):
         similarity_matrix = cosine_similarity(user_item)
 
         # tìm index của user theo id
-        user_idx = np.where(list_user_code == query_user_code)
+        user_idx = np.where(list_user_code == query_user_code)[0][0]
         
         list_product_recommendation = []
         # lặp qua tất cả sản phẩm hiện có
         for product_idx, product_code in enumerate(list_product_code):
             # tìm tất cả user đã rate sản phẩm đó
             user_rated_product = np.where(user_item[:, product_idx] > 0)[0]
+            # nếu user hiện tại đã rate thì bỏ ra
+            user_rated_product = user_rated_product[user_rated_product != user_idx]
+
             # tìm các hệ số tương quan giữa user mong muốn và tất cả user đã rate
             sim = similarity_matrix[user_idx, user_rated_product]
             sim = sim[sim < 1] # loại bỏ giá trị có tương quan là 1, vì nó tương quan với chính nó
