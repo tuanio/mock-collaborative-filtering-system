@@ -23,6 +23,6 @@ Cần phải có 3 file, để trong thư mục data:
 - `/get-recommendation/<query_user_code>/<limit>`, methods: `GET`. `query_user_code` là id của user mong muốn lấy danh sách recommend. Trong đó, `limit` là số lượng sản phẩm muốn lấy. API sẽ trả về `limit` sản phẩm được gợi ý.
 
 # Environment Variables
-- `DB_URI`: link kết nối đến database
+- `DATABASE_URL`: link kết nối đến database
 - `FLASK_ENV`
 - `FLASK_APP=app`
