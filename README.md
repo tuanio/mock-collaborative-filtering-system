@@ -29,4 +29,6 @@ Cần phải có 3 file, để trong thư mục data:
 
 # Cách setup
 - Chạy `python import_data.py` khi kết nối xong với database online
-- 
+
+# Backend URL:
+- `https://cf-project-production.up.railway.app`
