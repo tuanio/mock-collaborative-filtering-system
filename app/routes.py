@@ -5,6 +5,7 @@ from flask_cors import cross_origin
 from sqlalchemy.sql import func
 import pandas as pd
 import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 @app.route("/", methods=["GET"])
@@ -71,29 +72,50 @@ def get_recommendation(query_user_code: str, limit: int):
         order = [dict(item) for item in order]
         order = pd.DataFrame(order)
 
-        query = order[order.user_code == query_user_code].drop('user_code', axis=1)
-        query = query.sort_values(by='rating', ascending=False)
+        # query = order[order.user_code == query_user_code].drop('user_code', axis=1)
+        # query = query.sort_values(by='rating', ascending=False)
         
-        list_product_code = query['product_code'].values
-        # trọng số
-        weights = (query['rating'] / query['rating'].sum()).astype('float').values
+        # list_product_code = query['product_code'].values
+        # # trọng số
+        # weights = (query['rating'] / query['rating'].sum()).astype('float').values
 
-        recommend = np.random.choice(list_product_code,
-                size=min(limit, query.shape[0]), replace=False, p=weights).tolist()
+        # recommend = np.random.choice(list_product_code,
+        #         size=min(limit, query.shape[0]), replace=False, p=weights).tolist()
 
-        # list_user_code = order["user_code"].unique()
-        # list_product_code = order["product_code"].unique()
+        list_user_code = order["user_code"].unique()
+        list_product_code = order["product_code"].unique()
 
-        # user_item = np.zeros((len(list_user_code), len(list_product_code)))
-        # for user_idx, user_code in enumerate(list_user_code):
-        #     for item_idx, product_code in enumerate(list_product_code):
-        #         user_item[user_idx, item_idx] = order[
-        #             (order.user_code == user_code) & (order.product_code == product_code)
-        #         ].rating.values[0]
+        user_item = np.zeros((len(list_user_code), len(list_product_code)))
+        for user_idx, user_code in enumerate(list_user_code):
+            for item_idx, product_code in enumerate(list_product_code):
+                user_item[user_idx, item_idx] = order[
+                    (order.user_code == user_code) & (order.product_code == product_code)
+                ].rating.values[0]
 
-        # idx = np.where(list_user_code == query_user_code)[0][0]
-        # user_item[]
+        # ma trận similarity (len user) x (len user)
+        similarity_matrix = cosine_similarity(user_item)
+
+        # tìm index của user theo id
+        user_idx = np.where(list_user_code == query_user_code)
+        
+        list_product_recommendation = []
+        for product_idx, product_code in enumerate(list_product_code):
+            user_rated_product = np.where(user_item[:, product_idx] > 0)[0]
+            sim = similarity_matrix[user_idx, user_rated_product]
+            sim = sim[sim < 1] # loại bỏ giá trị có tương quan là 1, vì nó tương quan với chính nó
+            rating = user_item[user_rated_product, product_idx] # lấy list rating của những user đã rate
+
+            # tính hệ số rating dự đoán, tổng trọng số giữa rating và độ tương quan
+            r = (rating * sim).sum() / sim.sum()
+
+            # đưa vào tuple (product id, rating) -> tí nữa sắp xếp giảm dần
+            list_product_recommendation.append((product_code, r))
+
+        # sắp xếp giảm dần theo rating dự đoán
+        list_product_recommendation = sorted(list_product_recommendation, key=lambda x: x[1], reverse=True)
+        list_product_recommendation = [pack[0] for pack in list_product_recommendation]
+
     except Exception as e:
         return make_response(dict(stauts="FAIL", detail=str(e)))
 
-    return make_response(dict(status="SUCCESS", list_product_recommend_id=recommend))
+    return make_response(dict(status="SUCCESS", list_product_recommend_id=list_product_recommendation))
